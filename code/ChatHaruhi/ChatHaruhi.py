@@ -1,5 +1,6 @@
 
 import os
+import json
 
 from .utils import luotuo_openai_embedding, tiktokenizer
 
@@ -48,6 +49,7 @@ class ChatHaruhi:
                  db_type = None):
         super(ChatHaruhi, self).__init__()
         self.verbose = verbose
+        self.role_from_hf = role_from_hf
 
         # constants
         self.story_prefix_prompt = "Classic scenes for the role are as follows:\n"
@@ -62,6 +64,14 @@ class ChatHaruhi:
         
         self.llm_type = llm 
         self.role_name = role_name 
+
+        import json
+        with open("../memory_bank/memory_bank.jsonl", "r", encoding="utf-8") as f:
+            self.memory_bank = json.load(f)
+        with open("../memory_bank/query_bank_en.jsonl", "r", encoding="utf-8") as f:
+            self.query_bank_en = json.load(f)
+        with open("../memory_bank/query_bank_zh.jsonl", "r", encoding="utf-8") as f:
+            self.query_bank_zh = json.load(f)
         
         # TODO: embedding should be the seperately defined, so refactor this part later
         if llm == 'openai' or llm.startswith('gpt'):
@@ -429,6 +439,15 @@ class ChatHaruhi:
             return (1500, 1200)
         
     def build_story_db_from_vec( self, texts, vecs ):
+        # TODO: 保存texts
+        # with open("../memory_bank/role_data.jsonl", "r", encoding="utf-8") as f:
+        #     role_data = json.load(f)
+        # if not self.role_name:
+        #     self.role_name = self.role_from_hf[26:]
+        # role_data[self.role_name] = texts
+        # with open("../memory_bank/role_data.jsonl", "w", encoding="utf-8") as f:
+        #     json.dump(role_data, f, ensure_ascii=False, indent=2)
+
         self.db = get_db_from_type(self.db_type)
 
         self.db.init_from_docs( vecs, texts)
@@ -572,6 +591,46 @@ class ChatHaruhi:
         else:
             return f"{role}:{self.dialogue_bra_token}{text}{self.dialogue_ket_token}"
         
+    def retireve(self, query, query_vec):
+        if self.role_name:
+            role_name = self.role_name
+        else:
+            role_name = self.role_from_hf[26:]
+
+        # 提取角色特定的记忆库
+        role_memory_bank = self.memory_bank[role_name]
+
+        # 中英文角色使用不同的提问库
+        if role_name in ["raidenShogun", "zhongli", "hutao", "haruhi", "ayaka", "wanderer"]:
+            query_bank = self.query_bank_zh
+        else:
+            query_bank = self.query_bank_en
+
+        for q in query_bank:
+            if q["query"] in query:
+                emotion_embedding = q["emotion_embedding"]
+                break
+        
+        import numpy as np
+        from scipy.spatial import distance
+
+        context_distances = self.db.search(query_vec, 0)
+        
+        emotion_distances = []
+        for mem in role_memory_bank:
+            if mem:
+                emotion_distances.append(1 - distance.cosine(np.array(emotion_embedding), np.array(mem["emotion_embedding"])))
+            else:
+                emotion_distances.append(0.5)
+
+        combine_distances = [a * b for a, b in zip(context_distances, emotion_distances)]
+        
+        inx = np.argsort(combine_distances)[-19:]
+        nearest_docs = [role_memory_bank[i]["context"] for i in inx]
+        scores = [combine_distances[i] for i in inx]
+
+        return nearest_docs, scores  
+
     def add_story(self, query):
 
         if self.db is None:
@@ -579,7 +638,10 @@ class ChatHaruhi:
         
         query_vec = self.embedding(query)
         
-        stories = self.db.search(query_vec, self.k_search)
+        # stories, _ = self.db.search(query_vec, self.k_search)
+
+        # TODO： 修改这里的检索函数，实现情绪增强
+        stories, _ = self.retireve(query, query_vec)
         
         story_string = self.story_prefix_prompt
         sum_story_token = self.tokenizer(story_string)

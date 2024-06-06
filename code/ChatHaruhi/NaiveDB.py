@@ -58,9 +58,10 @@ class NaiveDB(BaseDB):
             similarities.append(cosine_similarity)
 
         # 获取最相似的n_results个结果
-        top_indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)[:n_results]
-        top_documents = [self.documents[i] for i in top_indices]
-        return top_documents
+        # top_indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)
+        # top_documents = [self.documents[i] for i in top_indices]
+        # top_similarities = [similarities[i] for i in top_indices]  # 返回检索得分
+        return similarities
 
     def init_from_docs(self, vectors, documents):
         if(self.verbose):
