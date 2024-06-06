@@ -40,7 +40,7 @@ logger_main.addHandler(console_handler)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler_main.setFormatter(formatter)
 
-cache_sign = True
+cache_sign = False
 
 with open('config.json', 'r') as f:
 	config = json.load(f)
@@ -171,6 +171,7 @@ from openai import OpenAI
 client = OpenAI(
 	# This is the default and can be omitted
 	api_key=config['openai_apikey'],
+	base_url=config['openai_apibase']
 )
 
 @cached 

@@ -432,7 +432,7 @@ def get_cosine_similarity( v1, v2):
 import pickle
 
 
-cache_sign = True
+cache_sign = False
 
 cache = None 
 def cached(func):

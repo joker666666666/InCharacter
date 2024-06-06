@@ -161,7 +161,8 @@ def build_character_agent(character_code, agent_type, agent_llm):
 	
 
 	os.environ["OPENAI_API_KEY"] = config['openai_apikey']
-	
+	os.environ["OPENAI_API_BASE"] = config['openai_apibase']
+
 	if agent_type_args[0] == 'ChatHaruhi':
 		character_agent = ChatHaruhi(role_name = character_info[character_code]["agent"]["ChatHaruhi"], llm = agent_llm)
 	elif agent_type_args[0] == 'RoleLLM':
@@ -1098,7 +1099,7 @@ if __name__ == '__main__':
 # python personality_tests.py --eval_method interview_sample --questionnaire_name 16Personalities --character hutao
 # python personality_tests.py --eval_method interview_batch --questionnaire_name 16Personalities --character hutao
 # python personality_tests.py --eval_method interview_assess_batch_anonymous --questionnaire_name 16Personalities --character haruhi-zh
-#python personality_tests.py --eval_method interview_convert --questionnaire_name 16Personalities --character haruhi-zh
+# python personality_tests.py --eval_method interview_convert --questionnaire_name 16Personalities --character haruhi-zh
 
 
 
