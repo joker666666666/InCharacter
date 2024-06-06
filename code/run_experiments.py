@@ -18,7 +18,7 @@ eval_method_map = {
 parser = argparse.ArgumentParser()
 
 # 添加参数
-parser.add_argument('--questionnaire', type=str, default='BFI', choices=['BFI', '16Personalities', 'BSRI', 'DTDD', 'ECR-R', 'EIS', 'Empathy', 'EPQ-R', 'GSE', 'ICB', 'LMS', 'LOT-R', 'WLEIS', 'CABIN'])
+parser.add_argument('--questionnaire', type=str, default='16Personalities', choices=['BFI', '16Personalities', 'BSRI', 'DTDD', 'ECR-R', 'EIS', 'Empathy', 'EPQ-R', 'GSE', 'ICB', 'LMS', 'LOT-R', 'WLEIS', 'CABIN'])
 parser.add_argument('--eval_method', default='expert_rating', choices=eval_method_map.keys(), help='Evaluation method')
 parser.add_argument('--eval_llm', default='gpt-3.5', choices=['gpt-4', 'gpt-3.5', 'gemini'], help='LLM for Evaluation')
 parser.add_argument('--repeat_times', type=int, default=1, help='Number of experiment repeat times')

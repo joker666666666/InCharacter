@@ -40,7 +40,7 @@ logger_main.addHandler(console_handler)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler_main.setFormatter(formatter)
 
-cache_sign = True
+cache_sign = False
 
 with open('config.json', 'r') as f:
 	config = json.load(f)
