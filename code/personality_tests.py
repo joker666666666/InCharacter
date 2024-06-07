@@ -161,6 +161,7 @@ def build_character_agent(character_code, agent_type, agent_llm):
 	
 
 	os.environ["OPENAI_API_KEY"] = config['openai_apikey']
+	os.environ["OPENAI_API_BASE"] = config["openai_apibase"]
 	
 	if agent_type_args[0] == 'ChatHaruhi':
 		character_agent = ChatHaruhi(role_name = character_info[character_code]["agent"]["ChatHaruhi"], llm = agent_llm)

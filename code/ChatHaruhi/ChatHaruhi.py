@@ -68,9 +68,9 @@ class ChatHaruhi:
         import json
         with open("../memory_bank/memory_bank.jsonl", "r", encoding="utf-8") as f:
             self.memory_bank = json.load(f)
-        with open("../memory_bank/query_bank_en.jsonl", "r", encoding="utf-8") as f:
+        with open("../memory_bank/query_bank_16P_en.jsonl", "r", encoding="utf-8") as f:
             self.query_bank_en = json.load(f)
-        with open("../memory_bank/query_bank_zh.jsonl", "r", encoding="utf-8") as f:
+        with open("../memory_bank/query_bank_16P_zh.jsonl", "r", encoding="utf-8") as f:
             self.query_bank_zh = json.load(f)
         
         # TODO: embedding should be the seperately defined, so refactor this part later
@@ -376,7 +376,7 @@ class ChatHaruhi:
             from .LangChainGPT import LangChainGPT
             from langchain.chat_models import ChatOpenAI
             model = LangChainGPT()
-            model.chat = ChatOpenAI(model='Qwen/Qwen-7B-Chat', api_key='EMPTY', base_url='http://127.0.0.1:2184/v1') 
+            model.chat = ChatOpenAI(model='Qwen1.5-72B-Chat-GPTQ-Int4', api_key='EMPTY', base_url="http://localhost:24667/v1") 
 
             return (model, tiktokenizer)
         

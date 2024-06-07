@@ -171,6 +171,7 @@ from openai import OpenAI
 client = OpenAI(
 	# This is the default and can be omitted
 	api_key=config['openai_apikey'],
+	base_url=config["openai_apibase"],
 )
 
 @cached 

@@ -22,7 +22,7 @@ parser.add_argument('--questionnaire', type=str, default='16Personalities', choi
 parser.add_argument('--eval_method', default='expert_rating', choices=eval_method_map.keys(), help='Evaluation method')
 parser.add_argument('--eval_llm', default='gpt-3.5', choices=['gpt-4', 'gpt-3.5', 'gemini'], help='LLM for Evaluation')
 parser.add_argument('--repeat_times', type=int, default=1, help='Number of experiment repeat times')
-parser.add_argument('--agent_llm', default='gpt-3.5', choices=['gpt-3.5', 'gpt-4'], help='Agent LLM')
+parser.add_argument('--agent_llm', default='qwen', choices=["qwen", 'gpt-3.5', 'gpt-4'], help='Agent LLM')
 
 # 解析参数
 args = parser.parse_args()
@@ -43,6 +43,7 @@ logger.info('Start testing eval methods')
 
 results = {}
 
+cnt = 0
 for agent_type in agent_types:
     for character in characters:
     #for agent_type in [ a for a in character_info[character]['agent'] if a in agent_types]:
@@ -55,7 +56,13 @@ for agent_type in agent_types:
         
         
         results[(character, agent_type)] = result 
-        
+    
+        cnt += 1
+        print(cnt)
+        if cnt >= 10:
+            break
+    if cnt >= 10:
+        break
 
 logger.info('Questionnaire: {}, Eval Method: {}, Repeat Times: {}, Agent LLM: {}, Eval LLM: {}'.format(questionnaire, eval_method, repeat_times, agent_llm, eval_llm))   
 
