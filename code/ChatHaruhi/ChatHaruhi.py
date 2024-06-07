@@ -366,7 +366,7 @@ class ChatHaruhi:
             from .LangChainGPT import LangChainGPT
             from langchain.chat_models import ChatOpenAI
             model = LangChainGPT()
-            model.chat = ChatOpenAI(model='Qwen/Qwen-7B-Chat', api_key='EMPTY', base_url='http://127.0.0.1:2184/v1') 
+            model.chat = ChatOpenAI(model="Qwen1.5-72B-Chat-GPTQ-Int4", api_key='EMPTY', base_url= "http://localhost:24667/v1") 
 
             return (model, tiktokenizer)
         
