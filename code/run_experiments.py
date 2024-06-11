@@ -22,7 +22,7 @@ parser.add_argument('--questionnaire', type=str, default='16Personalities', choi
 parser.add_argument('--eval_method', default='expert_rating', choices=eval_method_map.keys(), help='Evaluation method')
 parser.add_argument('--eval_llm', default='gpt-3.5', choices=['gpt-4', 'gpt-3.5', 'gemini'], help='LLM for Evaluation')
 parser.add_argument('--repeat_times', type=int, default=1, help='Number of experiment repeat times')
-parser.add_argument('--agent_llm', default='qwen', choices=["qwen", 'gpt-3.5', 'gpt-4'], help='Agent LLM')
+parser.add_argument('--agent_llm', default='chatglm', choices=["chatglm", "qwen", 'gpt-3.5', 'gpt-4'], help='Agent LLM')
 
 # 解析参数
 args = parser.parse_args()
