@@ -66,7 +66,7 @@ class ChatHaruhi:
         # TODO: embedding should be the seperately defined, so refactor this part later
         if llm == 'openai' or llm.startswith('gpt'):
             # self.llm = LangChainGPT()
-            self.llm, self.tokenizer = self.get_models('openai')
+            self.llm, self.tokenizer = self.get_modfels('openai')
         elif llm == 'gemini':
             self.llm, self.tokenizer = self.get_models('gemini')
         elif llm == 'debug':
@@ -351,12 +351,12 @@ class ChatHaruhi:
                 return len(tokenizer_llama.encode(text))
 
             return (model, llama_tokenizer)
-        elif "characterglm6b" == model_name:
+        elif "chatglm" == model_name:
             from .LangChainGPT import LangChainGPT
             from langchain.chat_models import ChatOpenAI
             model = LangChainGPT()
 
-            model.chat = ChatOpenAI(model='thu-coai/CharacterGLM-6B', api_key='EMPTY', base_url='http://127.0.0.1:2184/v1') 
+            model.chat = ChatOpenAI(model='chatglm3-6b', api_key='EMPTY', base_url='http://localhost:24667/v1') 
 
             return (model, tiktokenizer)
 
