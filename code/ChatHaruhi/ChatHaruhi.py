@@ -68,9 +68,9 @@ class ChatHaruhi:
         import json
         with open("../memory_bank/memory_bank.jsonl", "r", encoding="utf-8") as f:
             self.memory_bank = json.load(f)
-        with open("../memory_bank/query_bank_en.jsonl", "r", encoding="utf-8") as f:
+        with open("../memory_bank/query_bank_16P_en.jsonl", "r", encoding="utf-8") as f:
             self.query_bank_en = json.load(f)
-        with open("../memory_bank/query_bank_zh.jsonl", "r", encoding="utf-8") as f:
+        with open("../memory_bank/query_bank_16P_zh.jsonl", "r", encoding="utf-8") as f:
             self.query_bank_zh = json.load(f)
         
         # TODO: embedding should be the seperately defined, so refactor this part later
