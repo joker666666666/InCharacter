@@ -1,16 +1,18 @@
-import pdb 
-import os
-import re 
-import random 
-import openai
+import io
 import json
 import logging
-import time  
-import jsonlines 
-import requests 
-import io
+import os
+import pdb
 import pickle
+import random
+import re
+import time
+
 import __main__
+import global_variable as gv
+import jsonlines
+import openai
+import requests
 
 quiet = False
 
@@ -168,6 +170,7 @@ def get_response(sys_prompt, inputs, model='gpt4', nth_generation=0):
 		return get_response_qwen(sys_prompt, inputs, model, nth_generation=nth_generation)
 
 from openai import OpenAI
+
 client = OpenAI(
 	# This is the default and can be omitted
 	api_key=config['openai_apikey'],
@@ -196,6 +199,11 @@ def get_response_gpt(sys_prompt, inputs, model, retry_count=0, nth_generation=0)
 		)
 
 		logger.info('GPT Output: ' + response.choices[0].message.content[:100])
+
+		usage = response.usage
+		gv.completion_tokens += usage.completion_tokens
+		gv.prompt_tokens += usage.prompt_tokens
+
 		return response.choices[0].message.content
 
 	except openai.BadRequestError as e:
@@ -466,6 +474,8 @@ def find_colon_idx(response):
 	return colon_idx
 
 import tiktoken
+
+
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
 	"""Return the number of tokens used by a list of messages."""
 	try:
@@ -745,8 +755,9 @@ def contain_repeation(response):
 		return False
 
 def truncate(response):
-	from langdetect import detect
 	import re
+
+	from langdetect import detect
 	def count_chinese_characters(text):
 		# 使用正则表达式匹配所有汉字字符
 		chinese_chars = re.findall(r'[\u4e00-\u9fff]', text)

@@ -90,6 +90,8 @@ class ChatHaruhi:
             self.llm, self.tokenizer = self.get_models('foo')
         elif "qwen" in llm:
             self.llm, self.tokenizer = self.get_models(llm)
+        elif "chatglm" in llm:
+            self.llm, self.tokenizer = self.get_models(llm)
         elif "llama" in llm:
             self.llm, self.tokenizer = self.get_models(llm)
         elif "phi" in llm:
@@ -356,7 +358,7 @@ class ChatHaruhi:
             from langchain.chat_models import ChatOpenAI
             model = LangChainGPT()
 
-            model.chat = ChatOpenAI(model='chatglm3-6b', api_key='EMPTY', base_url='http://localhost:24667/v1') 
+            model.chat = ChatOpenAI(model='chatglm3-6b', api_key='EMPTY', base_url='http://localhost:24669/v1') 
 
             return (model, tiktokenizer)
 
@@ -543,7 +545,7 @@ class ChatHaruhi:
         
         if 'no_description' in self.llm_type.split('=') and 'no_retrieve' in self.llm_type.split('='):
             query = text
-            print(query)
+            # print(query)
 
         if not 'no_retrieve' in self.llm_type.split('='):
             # add story
