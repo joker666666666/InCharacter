@@ -11,7 +11,7 @@ import math
 from utils import logger, get_response_json, avg, std
 import re 
 
-rerun = False #True
+rerun = True #True
 
 random.seed(42)
 
