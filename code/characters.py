@@ -11,6 +11,6 @@ for k, v in character_info.items():
     alias2character[k] = k 
     alias2character[k[:k.rfind('-')]] = k 
 
-with open('../data/characters_labels.json', 'r') as f:
+with open('../data/character_llm_mbti.json', 'r') as f:
     character_labels = json.load(f)
 

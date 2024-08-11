@@ -11,6 +11,7 @@ import requests
 import io
 import pickle
 import __main__
+import global_variable as gv
 
 quiet = False
 
@@ -194,6 +195,9 @@ def get_response_gpt(sys_prompt, inputs, model, retry_count=0, nth_generation=0)
 			presence_penalty=0.0,  # [-2,2]之间，该值越大则更倾向于产生不同的内容,
 			timeout=60
 		)
+
+		gv.completion_tokens += response.usage.completion_tokens
+		gv.prompt_tokens += response.usage.prompt_tokens
 
 		logger.info('GPT Output: ' + response.choices[0].message.content[:100])
 		return response.choices[0].message.content

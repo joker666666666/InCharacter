@@ -41,6 +41,7 @@ from langchain.schema import (
 from .BaseLLM import BaseLLM
 
 import os
+import global_variable as gv
 
 class LangChainGPT(BaseLLM):
 
@@ -89,7 +90,10 @@ class LangChainGPT(BaseLLM):
             response = self.chat.invoke(self.messages)
         total_tokens = cb.total_tokens
 
-        print(response.content)
+        if self.model == "gpt-3.5-turbo-1106":
+            gv.completion_tokens += cb.completion_tokens
+            gv.prompt_tokens += cb.prompt_tokens
+
         return response.content
 
     def print_prompt(self):

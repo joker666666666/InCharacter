@@ -46,7 +46,8 @@ class ChatHaruhi:
                  embedding = 'luotuo_openai', \
                  max_len_story = None, max_len_history = None,
                  verbose = False,
-                 db_type = None):
+                 db_type = None,
+                 questionnaire_name = None):
         super(ChatHaruhi, self).__init__()
         self.verbose = verbose
         self.role_from_hf = role_from_hf
@@ -68,10 +69,16 @@ class ChatHaruhi:
         import json
         with open("../memory_bank/memory_bank.jsonl", "r", encoding="utf-8") as f:
             self.memory_bank = json.load(f)
-        with open("../memory_bank/query_bank_16P_en.jsonl", "r", encoding="utf-8") as f:
-            self.query_bank_en = json.load(f)
-        with open("../memory_bank/query_bank_16P_zh.jsonl", "r", encoding="utf-8") as f:
-            self.query_bank_zh = json.load(f)
+        if questionnaire_name == "16Personalities":
+            with open("../memory_bank/query_bank_16P_en.jsonl", "r", encoding="utf-8") as f:
+                self.query_bank_en = json.load(f)
+            with open("../memory_bank/query_bank_16P_zh.jsonl", "r", encoding="utf-8") as f:
+                self.query_bank_zh = json.load(f)
+        else:
+            with open("../memory_bank/query_bank_BFI_en.jsonl", "r", encoding="utf-8") as f:
+                self.query_bank_en = json.load(f)
+            with open("../memory_bank/query_bank_BFI_zh.jsonl", "r", encoding="utf-8") as f:
+                self.query_bank_zh = json.load(f)
         
         # TODO: embedding should be the seperately defined, so refactor this part later
         if llm == 'openai' or llm.startswith('gpt'):
@@ -378,7 +385,7 @@ class ChatHaruhi:
             from .LangChainGPT import LangChainGPT
             from langchain.chat_models import ChatOpenAI
             model = LangChainGPT()
-            model.chat = ChatOpenAI(model='Qwen1.5-7B-Chat-GPTQ-Int4', api_key='EMPTY', base_url="http://localhost:24668/v1") 
+            model.chat = ChatOpenAI(model='Qwen1.5-72B-Chat-GPTQ-Int4', api_key='EMPTY', base_url="http://localhost:24668/v1") 
 
             return (model, tiktokenizer)
         
@@ -616,7 +623,7 @@ class ChatHaruhi:
         import numpy as np
         from scipy.spatial import distance
 
-        context_distances = self.db.search(query_vec, 0)
+        context_distances = self.db.search(query_vec, 0)  # 返回的是相似度
         
         emotion_distances = []
         for mem in role_memory_bank:
@@ -625,15 +632,20 @@ class ChatHaruhi:
             else:
                 emotion_distances.append(0.5)
 
-        # combine_distances = [a * b for a, b in zip(context_distances, emotion_distances)]
+        combine_distances = [a + b for a, b in zip(context_distances, emotion_distances)]
         
-        context_indices = np.argsort(context_distances)[-38:]
-        result_1 = [emotion_distances[i] for i in context_indices]
-        emotion_indices = np.argsort(result_1)[-19:]
-        inx = [context_indices[i] for i in emotion_indices]
+        # context_indices = np.argsort(context_distances)[-38:]
+        # result_1 = [emotion_distances[i] for i in context_indices]
+        # emotion_indices = np.argsort(result_1)[-19:]
+        # inx = [context_indices[i] for i in emotion_indices]
 
-        # inx = np.argsort(combine_distances)[-19:]
-        nearest_docs = [role_memory_bank[i]["context"] for i in inx]
+        inx = np.argsort(combine_distances)[-19:]
+        # inx = np.argsort(context_distances)[-19:]
+        nearest_docs = []
+        for i in inx:
+            if role_memory_bank[i]:
+                nearest_docs.append(role_memory_bank[i]["context"])
+        
         scores = [context_distances[i] for i in inx]
 
         return nearest_docs, scores  

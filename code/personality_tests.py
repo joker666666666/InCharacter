@@ -147,8 +147,7 @@ def split_list(input_list, n=4):
 		
 	return result
 
-
-def build_character_agent(character_code, agent_type, agent_llm):
+def build_character_agent(character_code, agent_type, agent_llm, questionnaire_name):
 	from ChatHaruhi import ChatHaruhi
 	
 	agent_type_args = agent_type.split('=', 1)
@@ -164,9 +163,9 @@ def build_character_agent(character_code, agent_type, agent_llm):
 	os.environ["OPENAI_API_BASE"] = config["openai_apibase"]
 	
 	if agent_type_args[0] == 'ChatHaruhi':
-		character_agent = ChatHaruhi(role_name = character_info[character_code]["agent"]["ChatHaruhi"], llm = agent_llm)
+		character_agent = ChatHaruhi(role_name = character_info[character_code]["agent"]["ChatHaruhi"], llm = agent_llm, questionnaire_name=questionnaire_name)
 	elif agent_type_args[0] == 'RoleLLM':
-		character_agent = ChatHaruhi( role_from_hf = f'silk-road/ChatHaruhi-from-RoleLLM/{character_info[character_code]["agent"]["RoleLLM"]}', llm = agent_llm, embedding = 'bge_en')
+		character_agent = ChatHaruhi( role_from_hf = f'silk-road/ChatHaruhi-from-RoleLLM/{character_info[character_code]["agent"]["RoleLLM"]}', llm = agent_llm, embedding = 'bge_en', questionnaire_name=questionnaire_name)
 		character_agent.role_name = 'RoleLLM/' + character_info[character_code]["agent"]["RoleLLM"]
 
 	character_agent.nickname = character_info[character_code]['alias'][0]
@@ -635,15 +634,15 @@ def assess(character_aliases, experimenter, questionnaire_results, questionnaire
 
 	return assessment_results 
 
-def personality_assessment(character, agent_type, agent_llm, questionnaire_name, eval_method, evaluator_llm='gpt-3.5-turbo', repeat_times=1):   
+def personality_assessment(character, agent_type, agent_llm, questionnaire_name, eval_method, evaluator_llm='gpt-3.5-turbo', repeat_times=1, folder_name=None, dataset=None):   
 
 	
-	if character in character_info.keys():
-		pass
-	elif character in alias2character.keys():
-		character = alias2character[character]
-	else:
-		raise ValueError(f"Character '{character}' not found. Here are the items: {list(alias2character.items())}") 
+	# if character in character_info.keys():
+	# 	pass
+	# elif character in alias2character.keys():
+	# 	character = alias2character[character]
+	# else:
+	# 	raise ValueError(f"Character '{character}' not found. Here are the items: {list(alias2character.items())}") 
 
 	# load questionnaire
 	if questionnaire_name in scale_list:
@@ -676,8 +675,13 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 	
 	final_save_path = os.path.join(final_folder_path, f'{character}.json' )
 
-	character_name = character_info[character]["alias"][0]
-	language = character[character.rfind('-')+1:]
+	# character_name = character_info[character]["alias"][0]
+	# language = character[character.rfind('-')+1:]
+	character_name = character
+	if dataset == "characterllm":
+		language = 'en'
+	else:
+		language = 'zh'
 	
 	eval_args = eval_method.split('_')
 
@@ -685,7 +689,7 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 		# need to get multitime assessment results
 
 		# get experimenter
-		experimenter = get_experimenter(character)
+		# experimenter = get_experimenter(character)
 
 		multitime_assess_results = []
 
@@ -730,18 +734,20 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 			else:
 				interview_folder_path = os.path.join('..', 'results', 'interview', f'{questionnaire_name}-agent-type=cAI_agent-llm=gpt-3.5-turbo_query-style={query_style}')
 			
-			if not os.path.exists(interview_folder_path):
-				os.makedirs(interview_folder_path)
+			# if not os.path.exists(interview_folder_path):
+			# 	os.makedirs(interview_folder_path)
 
+			interview_folder_path = f'/home/huanglebj/InCharacter2/results/characterllm/{folder_name}/{agent_llm}'
 			for nth_test in range(max(repeat_times, 1)):			
 				if repeat_times < 1:
-					interview_save_path = f'{character}_{repeat_times}-test.json'
+					interview_save_path = f'{character}_zh_{repeat_times}_test.json'
 				else:
-					interview_save_path = f'{character}_{nth_test}-test.json'
+					interview_save_path = f'{character}_zh_{nth_test}_test.json'
 
 				interview_save_path = os.path.join(interview_folder_path, interview_save_path)
 				
 				if not os.path.exists(interview_save_path):
+					print(interview_save_path)
 					logger.info('Interviewing...')
 
 					if not character_agent:
@@ -777,7 +783,7 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 					previous_file_path = assessment_save_path
 					
 					logger.info('Assessing...')
-					assessment_results = assess(character_info[character]["alias"], experimenter, questionnaire_results, questionnaire, questionnaire_metadata, eval_method, language, evaluator_llm, nth_test, agent_llm)
+					assessment_results = assess([character_name], "采访者", questionnaire_results, questionnaire, questionnaire_metadata, eval_method, language, evaluator_llm, nth_test, agent_llm)
 			
 					with open(assessment_save_path, 'w') as f:
 						json.dump(assessment_results, f, indent=4, ensure_ascii=False)
@@ -863,6 +869,7 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 			label_settings = ['pdb', 'annotation']
 		else:
 			label_settings = ['annotation']
+		label_settings = ["pdb"]
 
 
 		if questionnaire_name in ['BFI', '16Personalities']:
@@ -889,7 +896,7 @@ def personality_assessment(character, agent_type, agent_llm, questionnaire_name,
 			logger.info(f'Prediction {code}')
 
 			for label_setting in label_settings:
-				labels = character_labels[label_setting][character][questionnaire_name]
+				labels = character_labels[label_setting][character_name][questionnaire_name]
 
 				label_code = '' 
 				for dim in dims:
